@@ -137,4 +137,10 @@ tr:nth-child(even){
   .comments, .upvotes {
     min-width: initial;
   }
+  table{
+    font-size: 11px;
+  }
+  .title a {
+    font-size: 12px;
+  }
 }
