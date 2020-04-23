@@ -1,20 +1,20 @@
 import React from 'react';
+import logo from '../../logo.gif';
 
-interface InitialState {
-    menu: any,
-    active: 'top'
-}
-
-class Header extends React.Component<any, InitialState> {
-    constructor(props: any) {
-        super(props);
-    }
-
+class Header extends React.Component<any, any> {
     render() {
+        const { menu, activeItem, navClick } = this.props;
+        const list = menu.map(item => (
+            <li className={activeItem === item ? 'active': ''} onClick={() => navClick(item)} key={item}>{item}</li>
+        ))
+
         return (
-            <React.Fragment>
-                
-            </React.Fragment>
+            <header>
+                <div id="logo"><img src={logo} alt="Logo" /></div>
+                <ul className="menu">
+                    {list}
+                </ul>
+            </header>
         )
     }
 }
