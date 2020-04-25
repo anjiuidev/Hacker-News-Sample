@@ -18,11 +18,9 @@ const NewsReducer = (state = initialSate, action) => {
                 isLoading: true
             }
         case news.LOAD_NEWS_SUCCESS:
-            const { data } = action.payload;
-            data && data.hits.forEach((item, i) => {
-                if (newState.hiddenNews[item.objectID]) {
-                    data.hits.splice(i,1);
-                }
+            let { data } = action.payload;
+            data.hits = data.hits.filter(item => !newState.hiddenNews[item.objectID]);
+            data.hits.forEach((item, i) => {
                 if (newState.upVotes[item.objectID]) {
                     item.points = item.points ? item.points + 1 : 1;
                 }
