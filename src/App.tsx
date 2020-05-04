@@ -27,7 +27,7 @@ class App extends React.Component<any,InitialState> {
     const { menu, activeItem } = this.state;
     return (
       <div className="App" >
-        <Header menu={menu} activeItem={activeItem} navClick={this.menuItemClick} />
+        {/* <Header menu={menu} activeItem={activeItem} navClick={this.menuItemClick} /> */}
         <Home />
       </div>
     );

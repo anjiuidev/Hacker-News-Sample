@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { loadNews, upVote, hideNews } from '../../redux/actions/newsActions';
 import More from './more';
+import Chart from './chart';
 
 class News extends React.Component<any, any> {
     constructor(props: any) {
@@ -16,20 +17,20 @@ class News extends React.Component<any, any> {
         this.props.loadNews({});
     }
 
-    loadMore() {
+    loadMore(event) {
         const { news } = this.props.news;
         const req = {
-            page: news.page + 1
+            page: news.page + (event ? 1 : -1)
         }
 
         this.props.loadNews(req);
     }
 
-    hideNewsItem(id){
+    hideNewsItem(id) {
         this.props.hideNews(id);
     }
 
-    upVote(id){
+    upVote(id) {
         this.props.upVote(id);
     }
 
@@ -69,10 +70,20 @@ class News extends React.Component<any, any> {
             return url ? (new URL(url)).hostname : 'unknown';
         }
 
+        const getColor = votes => {
+            let classname = 'upvotes';
+            if (votes > 50 && votes < 100) {
+                classname += ' red';
+            } else if (votes >= 100) {
+                classname += ' orange';
+            }
+            return classname;
+        }
+
         const trow = news && (news.hits || []).map((item, i) => (
             <tr key={i}>
                 <td className="comments">{item?.num_comments || '-'}</td>
-                <td className="upvotes">{item?.points || '-'}</td>
+                <td className={getColor(item?.points)}>{item?.points || '-'}</td>
                 <td className="vote">
                     <span className={`arrow ${upVotes[item.objectID] ? 'active' : ''}`} onClick={() => this.upVote(item.objectID)}></span>
                 </td>
@@ -90,13 +101,24 @@ class News extends React.Component<any, any> {
 
         return (
             <main>
-                {isLoading ? 'Loading News data...' : null }
                 <table>
+                    <thead>
+                        <tr>
+                            <th className="comments">Comments</th>
+                            <th className="upvotes">Vote Count</th>
+                            <th>UpVote</th>
+                            <th>News Details</th>
+                        </tr>
+                    </thead>
                     <tbody>
+                        {isLoading ? <tr>
+                            <td colSpan={4}>Loading News data...</td>
+                        </tr> : null}
                         {trow}
                     </tbody>
                 </table>
-                {!isLoading && <More moreClick={this.loadMore} />}
+                {!isLoading && <More moreClick={this.loadMore} page={news.page} />}
+                {(!isLoading || news.hits) && <Chart data={news.hits ? [...news.hits] : []} />}
             </main>
         )
     }

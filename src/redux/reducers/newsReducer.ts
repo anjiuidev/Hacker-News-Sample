@@ -19,12 +19,14 @@ const NewsReducer = (state = initialSate, action) => {
             }
         case news.LOAD_NEWS_SUCCESS:
             let { data } = action.payload;
-            data.hits = data.hits.filter(item => !newState.hiddenNews[item.objectID]);
-            data.hits.forEach((item, i) => {
-                if (newState.upVotes[item.objectID]) {
-                    item.points = item.points ? item.points + 1 : 1;
-                }
-            });
+            data.hits = data.hits
+                .filter(item => !newState.hiddenNews[item.objectID])
+                .map((item, i) => {
+                    if (newState.upVotes[item.objectID]) {
+                        item.points = item.points ? item.points + newState.upVotes[item.objectID] : newState.upVotes[item.objectID];
+                    }
+                    return item;
+                });
             return {
                 ...newState,
                 news: data,
@@ -37,19 +39,24 @@ const NewsReducer = (state = initialSate, action) => {
                 isLoading: false
             }
         case news.UP_VOTE:
-            if (!newState.upVotes[action.payload]) {
-                const newsItem = newState.news.hits.find(item => item.objectID === action.payload);
-                newsItem.points = newsItem.points ? newsItem.points + 1 : 1;
-                newState.upVotes[action.payload] = true;
-                localStorage.setItem('upVotes', JSON.stringify(newState.upVotes));
+            const newsData = { ...newState.news };
+            const id = action.payload;
+            const index = newsData.hits.findIndex(item => item.objectID === id);
+            newsData.hits[index] = { ...newsData.hits[index], points: newsData.hits[index].points ? newsData.hits[index].points + 1 : 1 }
+            if (!newState.upVotes[id]) {
+                newState.upVotes[id] = 1;
+            } else {
+                newState.upVotes[id] += 1;
             }
+            localStorage.setItem('upVotes', JSON.stringify(newState.upVotes));
             return {
-                ...newState
+                ...newState,
+                news: newsData
             }
         case news.HIDE_NEWS:
             if (!newState.hiddenNews[action.payload]) {
                 const index = newState.news.hits.findIndex(item => item.objectID === action.payload);
-                newState.news.hits.splice(index,1);
+                newState.news.hits.splice(index, 1);
                 newState.hiddenNews[action.payload] = true;
                 localStorage.setItem('hiddenNews', JSON.stringify(newState.hiddenNews));
             }
